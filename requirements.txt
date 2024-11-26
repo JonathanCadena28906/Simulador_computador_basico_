@@ -1,0 +1,211 @@
+import pygame
+import sys
+
+# Inicializar Pygame
+pygame.init()
+
+# Configuración de la ventana
+screen_width = 1024
+screen_height = 600
+screen = pygame.display.set_mode((screen_width, screen_height))
+pygame.display.set_caption("Simulador de Procesador")
+
+# Colores
+background_color = (60, 60, 60)  # Gris oscuro
+frame_color = (217, 217, 217)    # Gris claro
+text_color = (0, 0, 0)           # Negro
+white = (255, 255, 255)          # Blanco
+gray = (128, 128, 128)           # Gris medio
+
+# Fuente
+font = pygame.font.SysFont("Arial", 12)
+font_bold = pygame.font.SysFont("Arial", 12, bold=True)
+font_large = pygame.font.SysFont("Arial", 18, bold=True)
+
+"""import pygame
+import sys
+
+# Inicializar Pygame
+pygame.init()
+
+# Configuración de la ventana
+screen_width = 1024
+screen_height = 600
+screen = pygame.display.set_mode((screen_width, screen_height))
+pygame.display.set_caption("Simulador de Procesador")
+
+# Colores
+background_color = (60, 60, 60)  # Gris oscuro
+frame_color = (217, 217, 217)    # Gris claro
+text_color = (0, 0, 0)           # Negro
+white = (255, 255, 255)          # Blanco
+gray = (128, 128, 128)           # Gris medio
+
+# Fuente
+font = pygame.font.SysFont("Arial", 12)
+font_bold = pygame.font.SysFont("Arial", 12, bold=True)
+font_large = pygame.font.SysFont("Arial", 18, bold=True)
+
+# Función para dibujar texto
+def draw_text(text, x, y, font, color, center=False):
+    text_surface = font.render(text, True, color)
+    text_rect = text_surface.get_rect(center=(x, y) if center else None)
+    if center:
+        screen.blit(text_surface, text_rect)
+    else:
+        screen.blit(text_surface, (x, y))
+
+# Función para dibujar tabla de registros
+def draw_table(x, y, rows, cols, cell_width, cell_height, headers, data):
+    for row in range(rows + 1):  # +1 para incluir la fila de encabezados
+        for col in range(cols):
+            rect_x = x + col * cell_width
+            rect_y = y + row * cell_height
+            pygame.draw.rect(screen, white, (rect_x, rect_y, cell_width, cell_height), 1)
+            
+            # Dibujar texto (encabezados o datos)
+            if row == 0:  # Encabezados
+                draw_text(headers[col], rect_x + cell_width // 2, rect_y + cell_height // 2, font_bold, white, center=True)
+            else:  # Datos
+                draw_text(data[row - 1][col], rect_x + cell_width // 2, rect_y + cell_height // 2, font, white, center=True)
+
+# Bucle principal
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    # Fondo
+    screen.fill(background_color)
+
+    # Sección 1: Input y Output
+    input_height = int(screen_height * 0.6)  # Input ocupa el 60% de la sección vertical
+    output_height = screen_height - input_height - 40  # Output ocupa el resto del espacio
+
+    # Input
+    pygame.draw.rect(screen, gray, (20, 20, 180, input_height))
+    draw_text("Input", 110, 40, font_bold, white, center=True)
+
+    # Output
+    pygame.draw.rect(screen, gray, (20, 40 + input_height, 180, output_height))
+    draw_text("Output", 110, 60 + input_height, font_bold, white, center=True)
+
+    # Sección 2: ALU, UC, Registros
+    # ALU en forma de "V"
+    alu_top_y = 100
+    pygame.draw.polygon(screen, frame_color, [(300, alu_top_y), (400, alu_top_y), (350, alu_top_y + 80)])
+    draw_text("ALU", 350, alu_top_y + 40, font_bold, text_color, center=True)
+
+    # Etiquetas de A y B encima de la ALU
+    draw_text("A: 00", 300, alu_top_y - 20, font_bold, white, center=True)
+    draw_text("B: 00", 400, alu_top_y - 20, font_bold, white, center=True)
+
+    # Unidad de Control (UC)
+    uc_x, uc_y = 220, 200
+    pygame.draw.rect(screen, frame_color, (uc_x, uc_y, 120, 50))
+    draw_text("UC", uc_x + 60, uc_y + 25, font_bold, text_color, center=True)
+
+    # Listado de Registros (PC, MBR, MAR, IR, PSW)
+    registros = ["PC: 00", "MBR: 00", "MAR: 00", "IR: 00", "PSW: 00"]
+    registro_x, registro_y = 400, 200
+
+    # Dibujar registros y conectar con líneas
+    for i, reg in enumerate(registros):
+        reg_y = registro_y + i * 40
+        pygame.draw.rect(screen, frame_color, (registro_x, reg_y, 80, 30))
+        draw_text(reg, registro_x + 40, reg_y + 15, font_bold, text_color, center=True)
+
+
+    # UC al final de la última línea de la Sección 3
+    pygame.draw.line(screen, white, (uc_x + 120, uc_y + 34), (520 + 100, uc_y + 34), 2)
+
+    # MBR a la segunda línea de la Sección 3
+    mbr_y = registro_y + 40
+    pygame.draw.line(screen, white, (registro_x + 80, mbr_y + 15), (520 + 50, mbr_y + 15), 2)
+
+    # MAR a la primera línea de la Sección 3
+    mar_y = registro_y + 80
+    pygame.draw.line(screen, white, (registro_x + 80, mar_y + 15), (520, mar_y + 15), 2)
+
+    # Líneas de conexión
+    # UC a PC
+    pygame.draw.line(screen, white, (uc_x + 120, uc_y + 15), (registro_x, registro_y + 15), 2)
+
+    #PC a PC
+    pygame.draw.line(screen, white, (registro_x + 30, registro_y ), (registro_x + 30, registro_y  - 40), 2)
+    pygame.draw.line(screen, white, (registro_x + 30, registro_y  - 40), (registro_x + 50, registro_y  - 40), 2)
+    pygame.draw.line(screen, white, (registro_x + 50, registro_y  - 40), (registro_x + 50, registro_y ), 2)
+
+    # UC a MBR
+    pygame.draw.line(screen, white, (uc_x + 60, uc_y + 50), (uc_x + 60, uc_y + 55), 2)
+    pygame.draw.line(screen, white, (uc_x + 60, uc_y + 55), (registro_x, registro_y + 55), 2)
+
+    # UC a MAR
+    pygame.draw.line(screen, white, (uc_x + 60, uc_y + 50), (uc_x + 60, uc_y + 95), 2)
+    pygame.draw.line(screen, white, (uc_x + 60, uc_y + 95), (registro_x, registro_y + 95), 2)
+
+    # UC a IR
+    pygame.draw.line(screen, white, (uc_x + 60, uc_y + 50), (uc_x + 60, uc_y + 135), 2)
+    pygame.draw.line(screen, white, (uc_x + 60, uc_y + 135), (registro_x, registro_y + 135), 2)
+
+    # UC a PSW
+    pygame.draw.line(screen, white, (uc_x + 60, uc_y + 50), (uc_x + 60, uc_y + 175), 2)
+    pygame.draw.line(screen, white, (uc_x + 60, uc_y + 175), (registro_x, registro_y + 175), 2)
+
+    # Línea de conexión UC a ALU
+    pygame.draw.line(screen, white, (uc_x + 120, uc_y + 15), (uc_x + 130, uc_y + 15), 2)  # Línea horizontal
+    pygame.draw.line(screen, white, (uc_x + 130, uc_y + 15), (uc_x + 130, alu_top_y + 80), 2)  # Línea vertical
+
+    
+
+    # Cuadro de Registros Generales
+    general_reg_x, general_reg_y = 220, 410
+    headers = ["Registro", "General"]
+    data = [["R0", "R5"], ["R1", "R6"], ["R2", "R7"], ["R3", "R8"], ["R4", "R9"]]
+    draw_table(general_reg_x, general_reg_y, len(data), len(headers), 90, 30, headers, data)
+
+    # Línea de conexión UC a Registros Generales
+    pygame.draw.line(screen, white, (uc_x + 60, uc_y + 50), (general_reg_x +60, general_reg_y), 2)  # Línea vertical
+
+    # Sección 3: Líneas Verticales y Conexión con la Memoria de Programa
+    sec3_x_start, sec3_y_start = 520, 20
+    sec3_y_end = 580
+    sec3_spacing = 50
+    mem_prog_x = 660  # X de la memoria de programa
+
+    for i in range(3):
+    # Calculamos la posición X de cada línea
+        line_x = sec3_x_start + i * sec3_spacing
+
+    # Dibujar la línea vertical
+        pygame.draw.line(screen, white, (line_x, sec3_y_start), (line_x, sec3_y_end), 4)
+
+    # Conectar la parte inferior de cada línea con la memoria de programa
+        pygame.draw.line(screen, white, (line_x, sec3_y_end + (i*-15)), (mem_prog_x, sec3_y_end + (i*-15)), 2)
+
+    
+    
+
+    # Sección 4: Memoria de Programa
+    mem_prog_x, mem_prog_y = 660, 20
+    pygame.draw.rect(screen, frame_color, (660, 20, 170, screen_height - 40))
+    draw_text("Memoria Programa", 740, 40, font_bold, text_color, center=True)
+
+    # Sección 5: Memoria de Datos
+    pygame.draw.rect(screen, frame_color, (840, 20, 170, screen_height - 40))
+    draw_text("Memoria de Datos", 920, 40, font_bold, text_color, center=True)
+
+ 
+
+
+
+
+    # Actualizar pantalla
+    pygame.display.flip()
+
+# Salir de Pygame
+pygame.quit()
+sys.exit()
+
+""" 
